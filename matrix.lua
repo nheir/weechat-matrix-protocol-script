@@ -1826,6 +1826,7 @@ function Room:SetName(name)
 
     w.buffer_set(self.buffer, "short_name", name)
     w.buffer_set(self.buffer, "name", name)
+    w.buffer_set(self.buffer, "notify", "1")
     -- Doesn't work
     w.buffer_set(self.buffer, "plugin", "matrix")
     w.buffer_set(self.buffer, "full_name",
@@ -1895,6 +1896,7 @@ function Room:create_buffer()
     w.buffer_set(self.buffer, "nicklist", "1")
     -- Set to 1 for easier debugging of nick groups
     w.buffer_set(self.buffer, "nicklist_display_groups", "0")
+    w.buffer_set(self.buffer, "type", "formatted")
     w.buffer_set(self.buffer, "localvar_set_server", self.server)
     w.buffer_set(self.buffer, "localvar_set_roomid", self.identifier)
     self:SetName(self.name)
@@ -2413,6 +2415,8 @@ function Room:ParseChunk(chunk, backlog, chunktype)
             tag{'no_log'} -- Don't log encrypted message
             chunk = self:decryptChunk(chunk)
             was_decrypted = true
+        else
+            tag{'log1'}
         end
 
         if not backlog and not is_self then
