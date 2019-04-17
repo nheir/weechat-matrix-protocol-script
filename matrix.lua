@@ -550,6 +550,7 @@ function real_http_cb(extra, command, rc, stdout, stderr)
                 SERVER[k] = v
             end
             SERVER.connected = true
+            w.config_set_plugin('device_id', SERVER.device_id)
             SERVER:initial_sync()
         elseif command:find'/rooms/.*/initialSync' then
             local myroom = SERVER:addRoom(js)
@@ -1124,6 +1125,11 @@ MatrixServer.create = function()
          server.typingtimer = w.hook_timer(10*1000, 0, 0, "cleartyping", "")
      end
 
+     -- reuse old device_id when possible
+     if w.config_get_plugin('device_id') ~= '' then
+         server.device_id = w.config_get_plugin('device_id')
+     end
+
      -- Use a lock to prevent multiple simul poll with same end token, which
      -- could lead to duplicate messages
      server.poll_lock = false
@@ -1181,6 +1187,9 @@ function MatrixServer:connect()
             ["password"]=password,
             ["type"]="m.login.password"
         }
+        if self.device_id then
+            post["device_id"] = self.device_id
+        end
         http('/login', {
             postfields = json.encode(post)
         }, 'http_cb', timeout)
